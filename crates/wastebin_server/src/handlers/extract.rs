@@ -198,6 +198,7 @@ where
 /// Map a single language tag (e.g. `en`, `de-AT`) to a supported [`Lang`].
 fn lang_from_tag(tag: &str) -> Option<Lang> {
     match tag.split('-').next()?.trim() {
+        "zh" | "zH" | "Zh" | "ZH" => Some(Lang::Zh),
         "en" | "eN" | "En" | "EN" => Some(Lang::En),
         "de" | "dE" | "De" | "DE" => Some(Lang::De),
         _ => None,
@@ -259,8 +260,8 @@ mod tests {
     }
 
     #[test]
-    fn defaults_to_english_when_unsupported() {
-        assert_eq!(lang_from_accept_language("ja,fr;q=0.7"), Lang::En);
+    fn defaults_to_default_when_unsupported() {
+        assert_eq!(lang_from_accept_language("ja,fr;q=0.7"), Lang::Zh);
     }
 
     #[test]
