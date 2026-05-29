@@ -344,6 +344,8 @@ impl Handler {
             Open::Path(path) => Connection::open(path)?,
         };
 
+        conn.pragma_update(None, "journal_mode", "WAL")?;
+
         let migrations = Migrations::new(vec![
             M::up(include_str!("migrations/0001-initial.sql")),
             M::up(include_str!("migrations/0002-add-created-column.sql")),
