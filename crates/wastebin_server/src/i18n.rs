@@ -1,10 +1,11 @@
 use phf::phf_map;
 
-/// Languages the UI is translated into. English is the default and the
-/// fallback for any key missing from a non-English table.
+/// Languages the UI is translated into. Chinese is the default and the
+/// fallback for any key missing from a non-Chinese table.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub(crate) enum Lang {
     #[default]
+    Zh,
     En,
     De,
 }
@@ -13,21 +14,23 @@ impl Lang {
     /// BCP-47 code suitable for the `lang` attribute on `<html>`.
     pub(crate) fn code(self) -> &'static str {
         match self {
+            Lang::Zh => "zh",
             Lang::En => "en",
             Lang::De => "de",
         }
     }
 
-    /// Look up `key` in the current language, falling back to English and
+    /// Look up `key` in the current language, falling back to Chinese and
     /// finally to the key itself if the key is unknown everywhere. Keys are
     /// expected to be string literals.
     pub(crate) fn t(self, key: &'static str) -> &'static str {
         let map: &phf::Map<&'static str, &'static str> = match self {
+            Lang::Zh => &ZH,
             Lang::En => &EN,
             Lang::De => &DE,
         };
 
-        map.get(key).or_else(|| EN.get(key)).copied().unwrap_or(key)
+        map.get(key).or_else(|| ZH.get(key)).copied().unwrap_or(key)
     }
 
     /// Look up `key` and substitute the `{0}` placeholder with `arg`'s
@@ -37,7 +40,7 @@ impl Lang {
     }
 }
 
-static EN: phf::Map<&'static str, &'static str> = phf_map! {
+static ZH: phf::Map<&'static str, &'static str> = phf_map! {
     "nav.home" => "主页",
     "nav.upload" => "上传",
     "nav.delete" => "删除剪贴",
@@ -109,6 +112,80 @@ static EN: phf::Map<&'static str, &'static str> = phf_map! {
     "error.back" => "返回",
 
     "qr.label" => "二维码",
+};
+
+static EN: phf::Map<&'static str, &'static str> = phf_map! {
+    "nav.home" => "home",
+    "nav.upload" => "upload",
+    "nav.delete" => "delete paste",
+    "nav.download" => "download file",
+    "nav.raw" => "display raw file",
+    "nav.copy" => "copy to clipboard",
+    "nav.qr" => "qr code",
+    "nav.rendered" => "rendered view",
+    "nav.source" => "source view",
+
+    "theme.dark" => "dark mode",
+    "theme.light" => "light mode",
+    "theme.auto" => "auto mode",
+
+    "index.placeholder.paste" => "paste, type, or drop a file here 鈥?,
+    "index.drop" => "drop to load file",
+    "index.label.title" => "title",
+    "index.placeholder.title" => "untitled",
+    "index.label.language" => "language",
+    "index.aria.language" => "Language",
+    "index.placeholder.filter" => "filter 鈥?,
+    "index.label.expires" => "expires",
+    "index.label.options" => "options",
+    "index.toggle.burn" => "burn after reading",
+    "index.toggle.burn.hint" => "delete on first view",
+    "index.toggle.encrypt" => "encrypt",
+    "index.toggle.encrypt.hint" => "password-protect the paste",
+    "index.placeholder.password" => "password",
+    "index.stat.lines" => "lines",
+    "index.stat.chars" => "chars",
+    "index.stat.bytes" => "bytes",
+    "index.button.paste" => "Paste",
+    "index.button.paste.label" => "paste",
+
+    "paste.expires_in" => "expires in",
+    "paste.toast.copied_content" => "Copied content",
+    "paste.toast.copied_url" => "Copied URL",
+    "paste.toast.burned" => "Content is burned and cannot be looked up again!",
+    "paste.help.go_home" => "Go home",
+    "paste.help.go_here" => "Go here",
+    "paste.help.copy_url" => "Copy URL",
+    "paste.help.copy_content" => "Copy content",
+    "paste.help.download" => "Download",
+    "paste.help.show_qr" => "Show QR code",
+    "paste.help.toggle_wrap" => "Toggle line wrapping",
+    "paste.help.toggle_rendered" => "Toggle rendered view",
+    "paste.help.toggle_help" => "Toggle help",
+
+    "password.show" => "show password",
+    "password.hide" => "hide password",
+
+    "stats.unit.kb" => "kb",
+    "stats.unit.mb" => "mb",
+    "stats.label.limit" => "limit",
+
+    "burn.title" => "Burn after reading",
+    "burn.body" => "Copy and send <a class=\"text-link\" href=\"/{0}\">this link</a>. The recipient will be shown a confirmation prompt. The paste is deleted the moment they confirm.",
+
+    "burn_confirm.body" => "This paste will be <strong>permanently deleted</strong> the moment it is revealed. You will not be able to view it again.",
+    "burn_confirm.cancel" => "cancel",
+    "burn_confirm.reveal" => "reveal",
+
+    "encrypted.title" => "Encrypted paste",
+    "encrypted.placeholder" => "password 鈥?,
+    "encrypted.cancel" => "cancel",
+    "encrypted.decrypt" => "decrypt",
+
+    "error.title" => "Error 馃槩",
+    "error.back" => "go back",
+
+    "qr.label" => "qr code",
 };
 
 static DE: phf::Map<&'static str, &'static str> = phf_map! {
@@ -190,9 +267,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn falls_back_to_english_for_missing_keys() {
+    fn falls_back_to_default_for_missing_keys() {
         assert_eq!(Lang::De.t("nav.home"), "Start");
-        assert_eq!(Lang::En.t("nav.home"), "主页");
+        assert_eq!(Lang::En.t("nav.home"), "home");
+        assert_eq!(Lang::Zh.t("nav.home"), "主页");
         // Unknown key returns the key itself.
         assert_eq!(Lang::De.t("does.not.exist"), "does.not.exist");
     }
@@ -205,12 +283,9 @@ mod tests {
 
     #[test]
     fn translations_intersect() {
-        for key in EN.keys() {
-            assert!(DE.contains_key(key));
-        }
-
-        for key in DE.keys() {
+        for key in ZH.keys() {
             assert!(EN.contains_key(key));
+            assert!(DE.contains_key(key));
         }
     }
 }
