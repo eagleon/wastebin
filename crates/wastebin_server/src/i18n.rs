@@ -129,13 +129,13 @@ static EN: phf::Map<&'static str, &'static str> = phf_map! {
     "theme.light" => "light mode",
     "theme.auto" => "auto mode",
 
-    "index.placeholder.paste" => "paste, type, or drop a file here 鈥?,
+    "index.placeholder.paste" => "paste, type, or drop a file here …",
     "index.drop" => "drop to load file",
     "index.label.title" => "title",
     "index.placeholder.title" => "untitled",
     "index.label.language" => "language",
     "index.aria.language" => "Language",
-    "index.placeholder.filter" => "filter 鈥?,
+    "index.placeholder.filter" => "filter …",
     "index.label.expires" => "expires",
     "index.label.options" => "options",
     "index.toggle.burn" => "burn after reading",
@@ -178,11 +178,11 @@ static EN: phf::Map<&'static str, &'static str> = phf_map! {
     "burn_confirm.reveal" => "reveal",
 
     "encrypted.title" => "Encrypted paste",
-    "encrypted.placeholder" => "password 鈥?,
+    "encrypted.placeholder" => "password …",
     "encrypted.cancel" => "cancel",
     "encrypted.decrypt" => "decrypt",
 
-    "error.title" => "Error 馃槩",
+    "error.title" => "Error 😢",
     "error.back" => "go back",
 
     "qr.label" => "qr code",
